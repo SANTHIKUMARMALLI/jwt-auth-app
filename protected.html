@@ -1,0 +1,365 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protected Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .welcome-section {
+            margin-bottom: 3rem;
+        }
+
+        .welcome-section h2 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .welcome-section p {
+            color: #666;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .secret-section {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .secret-button {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+
+        .secret-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .secret-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .image-container {
+            margin-top: 2rem;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .image-container.show {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .secret-image {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .user-info {
+            background: #e3f2fd;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #2196f3;
+        }
+
+        .user-info h3 {
+            color: #1976d2;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-info p {
+            color: #666;
+            margin: 0;
+        }
+
+        .logout-section {
+            border-top: 1px solid #dee2e6;
+            padding-top: 2rem;
+        }
+
+        .logout-button {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔒 Protected Dashboard</h1>
+            <p>Welcome to the secure area!</p>
+        </div>
+
+        <div class="content">
+            <div id="messageDiv"></div>
+
+            <div class="welcome-section">
+                <h2>Access Granted!</h2>
+                <p>Congratulations! You have successfully authenticated and gained access to this protected area. Your JWT token has been verified and you can now access exclusive content.</p>
+            </div>
+
+            <div id="userInfo" class="user-info">
+                <h3>User Information</h3>
+                <p id="userDetails">Loading user details...</p>
+            </div>
+
+            <div class="secret-section">
+                <h3 style="color: #333; margin-bottom: 1rem;">🔐 Secret Content</h3>
+                <p style="color: #666; margin-bottom: 1.5rem;">Click the button below to reveal a secret image that's only accessible to authenticated users!</p>
+                
+                <button id="secretButton" class="secret-button" onclick="revealSecret()">
+                    🎭 Click to See the Secret Image
+                </button>
+
+                <div id="imageContainer" class="image-container">
+                    <img id="secretImage" class="secret-image" alt="Secret Image" />
+                    <p style="margin-top: 1rem; color: #666; font-style: italic;">
+                        This exclusive image is only visible to authenticated users! 🎉
+                    </p>
+                </div>
+            </div>
+
+            <div class="logout-section">
+                <h3 style="color: #333; margin-bottom: 1rem;">Session Management</h3>
+                <p style="color: #666; margin-bottom: 1rem;">When you're done, make sure to logout securely.</p>
+                <button class="logout-button" onclick="logout()">
+                    🚪 Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication on page load
+        window.addEventListener('load', async () => {
+            const token = localStorage.getItem('jwtToken');
+            
+            if (!token) {
+                window.location.href = '/';
+                return;
+            }
+
+            // Verify token and get user info
+            try {
+                const response = await fetch('/protected-resource', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('userDetails').textContent = `User ID: ${data.userId} | Token Status: Valid`;
+                } else {
+                    throw new Error('Token invalid');
+                }
+            } catch (error) {
+                localStorage.removeItem('jwtToken');
+                window.location.href = '/';
+            }
+        });
+
+        // Display messages
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('messageDiv');
+            messageDiv.innerHTML = `<div class="message ${type}">${message}</div>`;
+            
+            // Auto-hide success messages after 3 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageDiv.innerHTML = '';
+                }, 3000);
+            }
+        }
+
+        // Reveal secret image
+        async function revealSecret() {
+            const token = localStorage.getItem('jwtToken');
+            const button = document.getElementById('secretButton');
+            const imageContainer = document.getElementById('imageContainer');
+            const secretImage = document.getElementById('secretImage');
+
+            // Disable button and show loading
+            button.disabled = true;
+            button.innerHTML = '<span class="loading"></span>Loading Secret...';
+
+            try {
+                // Make authenticated request to get secret content
+                const response = await fetch('/protected-resource', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Simulate secret image URL (you can replace this with actual image from your server)
+                    // For demo purposes, using a placeholder image
+                    secretImage.src = 'http://ec2-3-86-31-55.compute-1.amazonaws.com/secret-image.jpg';
+                    
+                    imageContainer.classList.add('show');
+                    button.innerHTML = '✅ Secret Revealed!';
+                    button.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+                    
+                    showMessage('Secret image revealed successfully! 🎉', 'success');
+                } else {
+                    throw new Error('Failed to access secret content');
+                }
+            } catch (error) {
+                button.innerHTML = '❌ Failed to Load';
+                button.style.background = '#dc3545';
+                showMessage('Failed to load secret content. Please try again.', 'error');
+                
+                // Re-enable button after 2 seconds
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.innerHTML = '🎭 Click to See the Secret Image';
+                    button.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+                }, 2000);
+            }
+        }
+
+        // Logout function
+        function logout() {
+            // Remove JWT token from localStorage
+            localStorage.removeItem('jwtToken');
+            
+            // Show logout message
+            showMessage('Logged out successfully!', 'success');
+            
+            // Redirect to login page after 1 second
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1000);
+        }
+
+        // Handle browser back button to prevent unauthorized access
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) {
+                const token = localStorage.getItem('jwtToken');
+                if (!token) {
+                    window.location.href = '/';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
